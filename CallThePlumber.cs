@@ -20,10 +20,10 @@ namespace CallThePlumber
 
         PlayMakerFSM pipesLogicFsm;
 
-        // TODO: Organize and group related constants somewhere else'
+        // TODO: Organize and group related constants somewhere else
         readonly string plumberPhoneNumber = "08123123";
         readonly string plumberCallSubtitles = "Your pipes burst from the cold? Didn't your parents teach you about that stuff?";
-        readonly string plumberCallAudioTrack = "taxijob_call1";
+        readonly string plumberCallAudioTrack = "taxijob_call1"; // soundGroupName: Callers
         readonly float plumberCallLength = 5f;
         readonly float plumberCallDistance = 1800f;
 
@@ -36,8 +36,9 @@ namespace CallThePlumber
             parentsHousePipes = GameObject.Find("YARD/Building/Dynamics/Pipes");
             pipesLogicFsm = parentsHousePipes.GetPlayMaker("Logic");
 
-            InitializePlumberPhoneNumber();
             PatchParentsHousePipesFSM();
+            InitializePlumberPhoneNumber();
+            SpawnPlumbingBill();
         }
 
         void PatchParentsHousePipesFSM()
@@ -121,12 +122,52 @@ namespace CallThePlumber
                 ModConsole.Error("Failed to inject OnCalled");
         }
 
-        void SpawnPlumblingBill()
+        void SpawnPlumbingBill()
+        {
+            int serviceCost = GetRandomCost();
+            string playerMailBoxPath = "YARD/Others/PlayerMailBox1/";
+
+            // TODO: learn to load assets directly as to not rely on vanilla objects
+            GameObject vanillaEnvelopeMesh = GameObject.Find(playerMailBoxPath + "EnvelopePhoneBill1/envelopemesh");
+
+            GameObject plumbingBillEnvelope = new("EnvelopePlumbingBill");
+            plumbingBillEnvelope.transform.SetParent(GameObject.Find(playerMailBoxPath).transform, worldPositionStays: false);
+            plumbingBillEnvelope.layer = LayerMask.NameToLayer("DontCollide");
+            plumbingBillEnvelope.transform.localPosition = new Vector3(0.024f, -0.001f, 0.168f);
+            plumbingBillEnvelope.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
+            plumbingBillEnvelope.transform.localScale = new Vector3(1f, 1f, 1f);
+
+            var collider = plumbingBillEnvelope.AddComponent<CapsuleCollider>();
+            collider.radius = 0.015f;
+            collider.height = 0.3f;
+            collider.isTrigger = true;
+
+            GameObject envelopeMesh = new("envelopemesh");
+            envelopeMesh.transform.SetParent(plumbingBillEnvelope.transform, worldPositionStays: false);
+            envelopeMesh.transform.localPosition = new Vector3(0.0013f, 0.0257f, -0.2023f);
+            envelopeMesh.transform.localEulerAngles = new Vector3(0f, 276.15f, 0f);
+            envelopeMesh.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+
+            MeshFilter meshFilter = envelopeMesh.AddComponent<MeshFilter>();
+            meshFilter.sharedMesh = vanillaEnvelopeMesh.GetComponent<MeshFilter>().sharedMesh;
+
+            MeshRenderer meshRenderer = envelopeMesh.AddComponent<MeshRenderer>();
+            meshRenderer.material = vanillaEnvelopeMesh.GetComponent<MeshRenderer>().material;
+            meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            meshRenderer.receiveShadows = true;
+        }
+
+        void OnPlumblingBillEnvelopeClosed()
         {
 
         }
         
-        void PayPlumblingBill()
+        void PayPlumbingBill()
+        {
+
+        }
+
+        void OnPlumbingBillPaid()
         {
 
         }
