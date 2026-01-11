@@ -63,7 +63,6 @@
       echo .
       echo "== Running post build actions for configuration $(ConfigurationName)! ==="
 
-      IF "$(ConfigurationName)" == "Release" (
       IF NOT "$(MSCMODSFOLDER)" == "NONE" (
       copy "$(TargetPath)" "$(MSCMODSFOLDER)" /y
       echo  "Copied dll into MSC mods folder!"        
@@ -72,10 +71,9 @@
       copy "$(TargetPath)" "$(MWCMODSFOLDER)" /y
       echo  "Copied dll into MWC mods folder!"        
       )
-      )
+
       IF "$(ConfigurationName)" == "Debug" (
-      IF NOT "$(MSCMODSFOLDER)" == "NONE" (        
-      copy "$(TargetPath)" "$(MSCMODSFOLDER)" /y
+      IF NOT "$(MSCMODSFOLDER)" == "NONE" (     
       copy "$(TargetDir)$(TargetName).pdb" "$(MSCMODSFOLDER)" /y
       echo  "Copied pdb file into mods folder!"
       cd "$(MSCMODSFOLDER)"
@@ -85,8 +83,7 @@
       echo "debug.bat not found in "$(MSCMODSFOLDER)". You probably dont have MSCLoader debugging enabled!"
       )
       )
-      IF NOT "$(MWCMODSFOLDER)" == "NONE" (        
-      copy "$(TargetPath)" "$(MWCMODSFOLDER)" /y
+      IF NOT "$(MWCMODSFOLDER)" == "NONE" (     
       copy "$(TargetDir)$(TargetName).pdb" "$(MWCMODSFOLDER)" /y
       echo  "Copied pdb file into mods folder!"
       cd "$(MWCMODSFOLDER)"
@@ -99,6 +96,6 @@
       )
 
       echo "=== Done! ==="
-    </PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
 </Project>
