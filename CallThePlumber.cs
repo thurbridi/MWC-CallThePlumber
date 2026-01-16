@@ -16,7 +16,7 @@ namespace CallThePlumber
         public override string Description => ""; // Short description of your mod 
         public override Game SupportedGames => Game.MyWinterCar;
 
-        SettingsSliderInt minCostSlider, maxCostSlider;
+        SettingsSlider minCostSlider, maxCostSlider;
 
         GameObject plumberPhone, parentsHousePipes, phones, parentsHouseMailbox, plumbingBillEnvelope, plumberAd;
 
@@ -211,9 +211,9 @@ namespace CallThePlumber
             // All settings should be created here. 
             // DO NOT put anything that isn't settings or keybinds in here!
             Settings.AddHeader("Gameplay balance");
-            minCostSlider = Settings.AddSlider("minCostIntSlider", "Minimum plumbing service cost", minValue: 1, maxValue: 10, value: 5, onValueChanged: null);
-            maxCostSlider = Settings.AddSlider("maxCostIntSlider", "Maximum plumbing service cost", minValue: 10, maxValue: 20, value: 15, onValueChanged: null);
-
+            minCostSlider = Settings.AddSlider("minCostIntSlider", "Minimum plumbing service cost", minValue: 5f, maxValue: 15f, value: 5f, decimalPoints: 0, onValueChanged: () => { maxCostSlider.SetValue(Math.Max(minCostSlider.GetValue(), maxCostSlider.GetValue())); });
+            maxCostSlider = Settings.AddSlider("maxCostIntSlider", "Maximum plumbing service cost", minValue: 5f, maxValue: 15f, value: 15f, decimalPoints: 0, onValueChanged: () => { minCostSlider.SetValue(Math.Min(minCostSlider.GetValue(), maxCostSlider.GetValue())); });
+            
 #if DEBUG
             Settings.AddHeader("Debug");
             Settings.AddButton(name: "Repair house pipes", onClick: RepairParentsHousePipes);
