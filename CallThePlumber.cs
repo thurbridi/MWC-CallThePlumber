@@ -2,6 +2,8 @@
 using UnityEngine;
 using HutongGames.PlayMaker;
 using System;
+using System.Runtime.Versioning;
+using System.Linq;
 
 namespace CallThePlumber
 {
@@ -10,13 +12,13 @@ namespace CallThePlumber
         public override string ID => "CallThePlumber"; // Your (unique) mod ID 
         public override string Name => "Call The Plumber"; // Your mod name
         public override string Author => "casper-3"; // Name of the Author (your name)
-        public override string Version => "1.0"; // Version
+        public override string Version => "0.1.0"; // Version
         public override string Description => ""; // Short description of your mod 
         public override Game SupportedGames => Game.MyWinterCar;
 
         SettingsSliderInt minCostSlider, maxCostSlider;
 
-        GameObject plumberPhone, parentsHousePipes, phones;
+        GameObject plumberPhone, parentsHousePipes, phones, parentsHouseMailbox, plumbingBillEnvelope, plumberAd;
 
         PlayMakerFSM pipesLogicFsm;
 
@@ -26,6 +28,9 @@ namespace CallThePlumber
         readonly string plumberCallAudioTrack = "taxijob_call1"; // soundGroupName: Callers
         readonly float plumberCallLength = 5f;
         readonly float plumberCallDistance = 1800f;
+        int timeToEnvelopeInMailbox;
+        int timeToStartRepair;
+        int timeToFinishRepair;
 
         readonly string repairPlumbingEventName = "REPAIRPLUMBING";
         readonly string burstStateName = "State 2";
@@ -37,8 +42,8 @@ namespace CallThePlumber
             pipesLogicFsm = parentsHousePipes.GetPlayMaker("Logic");
 
             PatchParentsHousePipesFSM();
-            InitializePlumberPhoneNumber();
-            SpawnPlumbingBill();
+            InitializePlumberPhone();
+            InitializePlumbingBillEnvelope();
         }
 
         void PatchParentsHousePipesFSM()
@@ -58,11 +63,18 @@ namespace CallThePlumber
                 iceFsmVar.Value = 0f;
                 pipesOkFsmVar.Value = true;
             });
+
+            pipesLogicFsm.FsmInject(stateName: burstStateName, hook: () =>
+            {
+                plumberPhone.name = plumberPhoneNumber;
+                plumberPhone.SetActive(true);
+            });
         }
 
-        void InitializePlumberPhoneNumber()
+        void InitializePlumberPhone()
         {
-            plumberPhone = new GameObject(plumberPhoneNumber);
+            plumberPhone = new GameObject($"{plumberPhoneNumber}disabled");
+            //plumberPhone.SetActive(false);
 
             plumberPhone.transform.SetParent(phones.transform);
 
@@ -122,17 +134,16 @@ namespace CallThePlumber
                 ModConsole.Error("Failed to inject OnCalled");
         }
 
-        void SpawnPlumbingBill()
+        void InitializePlumbingBillEnvelope()
         {
-            int serviceCost = GetRandomCost();
-            string playerMailBoxPath = "YARD/Others/PlayerMailBox1/";
+            parentsHouseMailbox = GameObject.Find("YARD/Others/PlayerMailBox1/");
 
-            // TODO: learn to load assets directly as to not rely on vanilla objects
-            GameObject vanillaEnvelopeMesh = GameObject.Find(playerMailBoxPath + "EnvelopePhoneBill1/envelopemesh");
-
-            GameObject plumbingBillEnvelope = new("EnvelopePlumbingBill");
-            plumbingBillEnvelope.transform.SetParent(GameObject.Find(playerMailBoxPath).transform, worldPositionStays: false);
-            plumbingBillEnvelope.layer = LayerMask.NameToLayer("DontCollide");
+            plumbingBillEnvelope = new("EnvelopePlumbingBill")
+            {
+                layer = LayerMask.NameToLayer("DontCollide"),
+            };
+            plumbingBillEnvelope.SetActive(false);
+            plumbingBillEnvelope.transform.SetParent(parentsHouseMailbox.transform, worldPositionStays: false);
             plumbingBillEnvelope.transform.localPosition = new Vector3(0.024f, -0.001f, 0.168f);
             plumbingBillEnvelope.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
             plumbingBillEnvelope.transform.localScale = new Vector3(1f, 1f, 1f);
@@ -142,55 +153,25 @@ namespace CallThePlumber
             collider.height = 0.3f;
             collider.isTrigger = true;
 
-            GameObject envelopeMesh = new("envelopemesh");
-            envelopeMesh.transform.SetParent(plumbingBillEnvelope.transform, worldPositionStays: false);
-            envelopeMesh.transform.localPosition = new Vector3(0.0013f, 0.0257f, -0.2023f);
-            envelopeMesh.transform.localEulerAngles = new Vector3(0f, 276.15f, 0f);
-            envelopeMesh.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 
-            MeshFilter meshFilter = envelopeMesh.AddComponent<MeshFilter>();
-            meshFilter.sharedMesh = vanillaEnvelopeMesh.GetComponent<MeshFilter>().sharedMesh;
-
-            MeshRenderer meshRenderer = envelopeMesh.AddComponent<MeshRenderer>();
-            meshRenderer.material = vanillaEnvelopeMesh.GetComponent<MeshRenderer>().material;
-            meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            meshRenderer.receiveShadows = true;
-        }
-
-        void OnPlumblingBillEnvelopeClosed()
-        {
-
+            MailboxEnvelope plumbingInvoice = plumbingBillEnvelope.AddComponent<MailboxEnvelope>();
+            plumbingInvoice.onInvoicePaid = () =>  RepairParentsHousePipes(); 
         }
         
-        void PayPlumbingBill()
-        {
 
+        void SendPlumbingBillEnvelope() {
+            float cost = GetRandomCost();
+            plumbingBillEnvelope.GetComponent<MailboxEnvelope>().billValue = cost;
+            plumbingBillEnvelope.SetActive(true);
         }
-
-        void OnPlumbingBillPaid()
-        {
-
-        }
-
-        void SpawnPlumberAd()
-        {
-
-        }
-
-        void DespawnPlumberAd()
-        {
-
-        }
-
-        bool IsParentsHousePipesBurst()
-        {
-            return pipesLogicFsm.ActiveStateName == burstStateName;
-        }
+       
 
         void HandlePlumberCalled()
         {
             ModConsole.Print("Plumber scheduled");
-            RepairParentsHousePipes();
+            plumberPhone.SetActive(false);
+            plumberPhone.name = $"{plumberPhoneNumber}disabled";
+            SendPlumbingBillEnvelope();
         }
 
         void RepairParentsHousePipes()
@@ -208,9 +189,9 @@ namespace CallThePlumber
             pipesLogicFsm.SendEvent("BURST");
         }
 
-        int GetRandomCost()
+        float GetRandomCost()
         {
-            int minCost, maxCost;
+            float minCost, maxCost;
             minCost = minCostSlider.GetValue();
             maxCost = maxCostSlider.GetValue();
 
@@ -219,6 +200,7 @@ namespace CallThePlumber
 
         public override void ModSetup()
         {
+            SetupFunction(Setup.OnSave, Mod_OnSave);
             SetupFunction(Setup.OnLoad, Mod_OnLoad);
             SetupFunction(Setup.Update, Mod_Update);
             SetupFunction(Setup.ModSettings, Mod_Settings);
@@ -239,9 +221,24 @@ namespace CallThePlumber
 #endif
         }
 
+        private void Mod_OnSave()
+        {
+
+        }
+
         private void Mod_OnLoad()
         {
             // Called once, when mod is loading after game is fully loaded
+            AssetBundle invoiceBundle = LoadAssets.LoadBundle(this, "calltheplumber.unity3d");
+            GameObject plumbingBillPrefab = invoiceBundle.LoadAsset<GameObject>("PlumbingBill");
+            GameObject plumbingBill = GameObject.Instantiate(plumbingBillPrefab);
+
+            plumbingBill.name = "PlumbingBill";
+            plumbingBill.transform.SetParent(GameObject.Find("Sheets/").transform);
+            plumbingBill.SetActive(false);
+            
+            invoiceBundle.Unload(false);
+            
             InitializeMod();
         }
         private void Mod_Update()

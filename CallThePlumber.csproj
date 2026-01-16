@@ -51,9 +51,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Invoice.cs" />
+    <Compile Include="MailboxEnvelope.cs" />
     <Compile Include="CallThePlumber.cs" />
     <Compile Include="PhoneNumberAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="Assets\calltheplumber.unity3d" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -71,29 +77,6 @@
       IF NOT "$(MWCMODSFOLDER)" == "NONE" (
       copy "$(TargetPath)" "$(MWCMODSFOLDER)" /y
       echo  "Copied dll into MWC mods folder!"        
-      )
-
-      IF "$(ConfigurationName)" == "Debug" (
-      IF NOT "$(MSCMODSFOLDER)" == "NONE" (     
-      copy "$(TargetDir)$(TargetName).pdb" "$(MSCMODSFOLDER)" /y
-      echo  "Copied pdb file into mods folder!"
-      cd "$(MSCMODSFOLDER)"
-      IF exist "$(MSCMODSFOLDER)\debug.bat" (
-      call "$(MSCMODSFOLDER)\debug.bat"
-      ) ELSE (
-      echo "debug.bat not found in "$(MSCMODSFOLDER)". You probably dont have MSCLoader debugging enabled!"
-      )
-      )
-      IF NOT "$(MWCMODSFOLDER)" == "NONE" (     
-      copy "$(TargetDir)$(TargetName).pdb" "$(MWCMODSFOLDER)" /y
-      echo  "Copied pdb file into mods folder!"
-      cd "$(MWCMODSFOLDER)"
-      IF exist "$(MWCMODSFOLDER)\debug.bat" (
-      call "$(MWCMODSFOLDER)\debug.bat"
-      ) ELSE (
-      echo "debug.bat not found in "$(MWCMODSFOLDER)". You probably dont have MSCLoader debugging enabled!"
-      )
-      )      
       )
 
       echo "=== Done! ==="
