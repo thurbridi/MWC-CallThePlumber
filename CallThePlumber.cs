@@ -21,8 +21,7 @@ namespace CallThePlumber
         PlayMakerFSM pipesLogicFsm;
 
         PlumberService plumberService;
-        PlumberService.Config plumberConfig;
-
+        
         void InitializeMod()
         {
             pipesLogicFsm = GameObject.Find("YARD/Building/Dynamics/Pipes").GetPlayMaker("Logic");
@@ -31,7 +30,7 @@ namespace CallThePlumber
                 IsParentsHousePipesBurst() ? PlumberState.Available : PlumberState.Finished;
 
             string phoneNumber = "08114896";
-            plumberConfig = new()
+            PlumberService.Config plumberConfig = new()
             {
                 phoneNumber = phoneNumber,
                 adSubtitles = $"\"Need plumbing services? Call {PlumberService.FormatPhoneNumber(phoneNumber)}\"",
@@ -43,8 +42,6 @@ namespace CallThePlumber
                 maxCost = maxCostSlider.GetValue(),
                 currentState = currentState,
             };
-
-            ModConsole.Log($"plumberState = {currentState}");
 
             plumberService = PlumberService.Instance;
             plumberService.Initialize(plumberConfig);
@@ -67,17 +64,24 @@ namespace CallThePlumber
         {
             // All settings should be created here. 
             // DO NOT put anything that isn't settings or keybinds in here!
+            float maxCost = 99999f;
+            float minCost = 0f;
+
+            float defaultMinValue = 12500f;
+            float defaultMaxValue = 25000f;
+
             Settings.AddHeader("Gameplay balance");
             minCostSlider = Settings.AddSlider(
                 "minCostSlider", "Minimum plumbing service cost", 
-                minValue: 5f, maxValue: 15f, value: 10f, decimalPoints: 0, 
+                minValue: minCost, maxValue: maxCost, value: defaultMinValue, decimalPoints: 0, 
                 onValueChanged: () => { 
                     maxCostSlider.SetValue(Math.Max(minCostSlider.GetValue(), maxCostSlider.GetValue()));
                     plumberService.UpdateCostSettings(minCostSlider.GetValue(), maxCostSlider.GetValue());
             });
+
             maxCostSlider = Settings.AddSlider(
                 "maxCostSlider", "Maximum plumbing service cost", 
-                minValue: 5f, maxValue: 15f, value: 10f, decimalPoints: 0, 
+                minValue: minCost, maxValue: maxCost, value: defaultMaxValue, decimalPoints: 0, 
                 onValueChanged: () => { 
                     minCostSlider.SetValue(Math.Min(minCostSlider.GetValue(), maxCostSlider.GetValue()));
                     plumberService.UpdateCostSettings(minCostSlider.GetValue(), maxCostSlider.GetValue());
