@@ -19,7 +19,7 @@ namespace CallThePlumber
 
         void OpenEnvelope ()
         {
-            // TODO: Play sound group=HouseFoley variation=mail_envelope_open
+            MasterAudio.PlaySound3DAndForget(sType: "HouseFoley", sourceTrans: this.gameObject.transform, variationName: "mail_envelope_open");
             playerInMenu.Value = true;
             openMenuFsm.enabled = false;
 
@@ -32,7 +32,7 @@ namespace CallThePlumber
 
         void ReturnEnvelopeToMailbox()
         {
-            // TODO: Play sound group=HouseFoley variation=mail_envelope_close
+            MasterAudio.PlaySound3DAndForget(sType: "HouseFoley", sourceTrans: this.gameObject.transform, variationName: "mail_envelope_close");
             playerInMenu.Value = false;
             openMenuFsm.enabled = true;
 

@@ -88,7 +88,7 @@ namespace CallThePlumber
             phoneDataFSM.AddVariable(new FsmString { Name = "CallerSubtitle", Value = config.callSubtitles });
             phoneDataFSM.AddVariable(new FsmString { Name = "Number", Value = config.phoneNumber });
 
-            phoneDataFSM.AddVariable(new FsmInt { Name = "Stage", Value = 1 }); // can be anything but 0, otherwise it handles like a magazine calls
+            phoneDataFSM.AddVariable(new FsmInt { Name = "Stage", Value = 1 }); // can be anything but 0, otherwise it handles like magazine calls
 
             
             // TODO: Refactor using PlayMakerExtensions, but there seems to be a bug with GlobalTransitions via extensions.
