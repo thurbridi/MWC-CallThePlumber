@@ -8,19 +8,33 @@ namespace CallThePlumber
     {
         public Collider collider;
         public string subtitleText;
+        public float maxHitDistance;
 
+        bool wasOverCollider;
         FsmString vanillaSubtitles;
+        RaycastHit hit;
 
         void Awake()
         {
+            wasOverCollider = false;
+            maxHitDistance = 1f;
             vanillaSubtitles = FsmVariables.GlobalVariables.GetFsmString("GUIsubtitle");
         }
 
         void Update()
         {
-            if (UnifiedRaycast.GetHit(collider))
-                vanillaSubtitles.Value = subtitleText; 
-            else vanillaSubtitles.Value = "";
+            hit = UnifiedRaycast.GetRaycastHit();
+            bool isColliderHit = hit.collider == collider && hit.distance < maxHitDistance;
+
+            if (isColliderHit)
+            {
+                vanillaSubtitles.Value = subtitleText;
+                wasOverCollider = true;
+            } else if (wasOverCollider)
+            {
+                vanillaSubtitles.Value = "";
+                wasOverCollider = false;
+            }
         }
     }
 }
