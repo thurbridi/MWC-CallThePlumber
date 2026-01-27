@@ -102,19 +102,14 @@ namespace CallThePlumber
 
             envelopeContent.transform.Find("Foreground/PaymentButton").gameObject.AddComponent<Invoice>();
             envelopeContent.transform.Find("Foreground/PaymentButton").GetComponent<Invoice>().onButtonClicked = () =>
-            {
-                ModConsole.Print("Payment button clicked");
-                
+            {   
                 bool playerHasEnoughMoney = FsmVariables.GlobalVariables.GetFsmFloat("PlayerMoney").Value >= billValue;
 
                 if (playerHasEnoughMoney)
-                {
                     PayBill();
-                }
                 else
-                {
+                    // TODO: Show "Not enough money" message before closing
                     ReturnEnvelopeToMailbox();
-                }
             };
 
         }

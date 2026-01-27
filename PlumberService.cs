@@ -29,6 +29,7 @@ namespace CallThePlumber
 
             // Runtime state
             public PlumberState currentState;
+            public float invoiceCost;
         }
 
         private const string repairPlumbingEventName = "REPAIRPLUMBING";
@@ -127,7 +128,7 @@ namespace CallThePlumber
             {
                 layer = LayerMask.NameToLayer("DontCollide"),
             };
-            plumbingBillEnvelope.SetActive(false);
+            plumbingBillEnvelope.SetActive(config.currentState == PlumberState.WaitingPayment);
             plumbingBillEnvelope.transform.SetParent(parentsHouseMailbox.transform, worldPositionStays: false);
             plumbingBillEnvelope.transform.localPosition = new Vector3(0.024f, -0.001f, 0.168f);
             plumbingBillEnvelope.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
@@ -138,8 +139,8 @@ namespace CallThePlumber
             collider.height = 0.3f;
             collider.isTrigger = true;
 
-
             MailboxEnvelope plumbingInvoice = plumbingBillEnvelope.AddComponent<MailboxEnvelope>();
+            plumbingInvoice.billValue = config.invoiceCost;
             plumbingInvoice.onInvoicePaid = () => HandleInvoicePaid();
         }
 
@@ -147,8 +148,7 @@ namespace CallThePlumber
         {
             plumberAd = GameObject.Find("PERAPORTTI").transform.Find("Building/LOD/InfoBoard/PlumberAd").gameObject;
 
-            if (config.currentState == PlumberState.Available) plumberAd.SetActive(true);
-            else plumberAd.SetActive(false);
+            plumberAd.SetActive(config.currentState == PlumberState.Available);
 
             plumberAd.AddComponent<SubtitlesOnLook>();
             SubtitlesOnLook subtitlesComponent = plumberAd.GetComponent<SubtitlesOnLook>();
@@ -252,8 +252,8 @@ namespace CallThePlumber
 
         void SendPlumbingBillEnvelope()
         {
-            float cost = GetRandomCost();
-            plumbingBillEnvelope.GetComponent<MailboxEnvelope>().billValue = cost;
+            config.invoiceCost = GetRandomCost();
+            plumbingBillEnvelope.GetComponent<MailboxEnvelope>().billValue = config.invoiceCost;
             plumbingBillEnvelope.SetActive(true);
         }
     }

@@ -28,23 +28,31 @@ namespace CallThePlumber
 
             PlumberState currentState = SaveLoad.ValueExists(this, "plumberState") ? SaveLoad.ReadValue<PlumberState>(this, "plumberState") : 
                 IsParentsHousePipesBurst() ? PlumberState.Available : PlumberState.Finished;
+            float invoiceCost = SaveLoad.ValueExists(this, "invoiceCost") && (currentState == PlumberState.WaitingPayment) ? SaveLoad.ReadValue<float>(this, "invoiceCost") : Average(minCostSlider.GetValue(), maxCostSlider.GetValue());
 
             string phoneNumber = "08114896";
             PlumberService.Config plumberConfig = new()
             {
                 phoneNumber = phoneNumber,
                 adSubtitles = $"\"Need plumbing services? Call {PlumberService.FormatPhoneNumber(phoneNumber)}\"",
-                callSubtitles = "Your pipes burst from the cold? Didn't your parents teach you about that stuff?",
+                callSubtitles = "Pipes burst from the cold? Didn't your parents warn you about it? Anyway, I'll send the invoice to you.",
+                // TODO: Replace taxijob_call placeholder audio with custom one
                 callAudioVariation = "taxijob_call1", // soundGroupName: Callers
                 callLength = 5f,
                 callDistance = 1800f,
                 minCost = minCostSlider.GetValue(),
                 maxCost = maxCostSlider.GetValue(),
                 currentState = currentState,
+                invoiceCost = invoiceCost,
             };
 
             plumberService = PlumberService.Instance;
             plumberService.Initialize(plumberConfig);
+        }
+
+        float Average(float a, float b)
+        {
+            return (a + b) / 2f;
         }
 
         public bool IsParentsHousePipesBurst()
@@ -64,7 +72,7 @@ namespace CallThePlumber
         {
             // All settings should be created here. 
             // DO NOT put anything that isn't settings or keybinds in here!
-            float maxCost = 99999f;
+            float maxCost = 40000f;
             float minCost = 0f;
 
             float defaultMinValue = 12500f;
@@ -87,9 +95,13 @@ namespace CallThePlumber
                     plumberService.UpdateCostSettings(minCostSlider.GetValue(), maxCostSlider.GetValue());
                 });
 
+            bool isDebugHeaderCollapsed = true;
+#if DEBUG
+            isDebugHeaderCollapsed = false;
+#endif
             // TODO: uncomment directives at 1.0.0 release
             //#if DEBUG
-            Settings.AddHeader("Debug");
+            Settings.AddHeader("Debug", collapsedByDefault: isDebugHeaderCollapsed);
             Settings.AddButton(name: "Repair house pipes", onClick: () => plumberService.RepairParentsHousePipes());
             Settings.AddButton(name: "Freeze and burst pipes", onClick: () => plumberService.BurstParentsHousePipes());
             //#endif
