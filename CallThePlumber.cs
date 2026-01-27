@@ -1,10 +1,6 @@
-﻿using MSCLoader;
+﻿using System;
+using MSCLoader;
 using UnityEngine;
-using HutongGames.PlayMaker;
-using System;
-using System.Runtime.Versioning;
-using System.Linq;
-using System.Security;
 
 namespace CallThePlumber
 {
@@ -21,14 +17,16 @@ namespace CallThePlumber
         PlayMakerFSM pipesLogicFsm;
 
         PlumberService plumberService;
-        
+
         void InitializeMod()
         {
             pipesLogicFsm = GameObject.Find("YARD/Building/Dynamics/Pipes").GetPlayMaker("Logic");
 
-            PlumberState currentState = SaveLoad.ValueExists(this, "plumberState") ? SaveLoad.ReadValue<PlumberState>(this, "plumberState") : 
+            PlumberState currentState = SaveLoad.ValueExists(this, "plumberState") ? SaveLoad.ReadValue<PlumberState>(this, "plumberState") :
                 IsParentsHousePipesBurst() ? PlumberState.Available : PlumberState.Finished;
-            float invoiceCost = SaveLoad.ValueExists(this, "invoiceCost") && (currentState == PlumberState.WaitingPayment) ? SaveLoad.ReadValue<float>(this, "invoiceCost") : Average(minCostSlider.GetValue(), maxCostSlider.GetValue());
+            float invoiceCost = SaveLoad.ValueExists(this, "invoiceCost") && (currentState == PlumberState.WaitingPayment) ?
+                SaveLoad.ReadValue<float>(this, "invoiceCost")
+                : Average(minCostSlider.GetValue(), maxCostSlider.GetValue());
 
             string phoneNumber = "08114896";
             PlumberService.Config plumberConfig = new()
@@ -80,17 +78,19 @@ namespace CallThePlumber
 
             Settings.AddHeader("Gameplay balance");
             minCostSlider = Settings.AddSlider(
-                "minCostSlider", "Minimum plumbing service cost", 
-                minValue: minCost, maxValue: maxCost, value: defaultMinValue, decimalPoints: 0, 
-                onValueChanged: () => { 
+                "minCostSlider", "Minimum plumbing service cost",
+                minValue: minCost, maxValue: maxCost, value: defaultMinValue, decimalPoints: 0,
+                onValueChanged: () =>
+                {
                     maxCostSlider.SetValue(Math.Max(minCostSlider.GetValue(), maxCostSlider.GetValue()));
                     plumberService.UpdateCostSettings(minCostSlider.GetValue(), maxCostSlider.GetValue());
-            });
+                });
 
             maxCostSlider = Settings.AddSlider(
-                "maxCostSlider", "Maximum plumbing service cost", 
-                minValue: minCost, maxValue: maxCost, value: defaultMaxValue, decimalPoints: 0, 
-                onValueChanged: () => { 
+                "maxCostSlider", "Maximum plumbing service cost",
+                minValue: minCost, maxValue: maxCost, value: defaultMaxValue, decimalPoints: 0,
+                onValueChanged: () =>
+                {
                     minCostSlider.SetValue(Math.Min(minCostSlider.GetValue(), maxCostSlider.GetValue()));
                     plumberService.UpdateCostSettings(minCostSlider.GetValue(), maxCostSlider.GetValue());
                 });
@@ -128,7 +128,7 @@ namespace CallThePlumber
             plumberAd.transform.localScale = new Vector3(1f, 1f, 1f);
 
             ab.Unload(false);
-            
+
             InitializeMod();
         }
 

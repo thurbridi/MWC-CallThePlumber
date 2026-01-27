@@ -19,10 +19,10 @@ namespace CallThePlumber
         {
             // Settings
             public float minCost, maxCost;
-            
+
             // Ad at PSK
             public string adSubtitles;
-            
+
             // Phone call
             public string phoneNumber, callSubtitles, callAudioVariation;
             public float callLength, callDistance;
@@ -85,13 +85,13 @@ namespace CallThePlumber
             phoneDataFSM.AddVariable(new FsmFloat { Name = "CallerCallLenght", Value = config.callLength }); // "Lenght" in name is intentionally misspelled to match MWC
             phoneDataFSM.AddVariable(new FsmFloat { Name = "Distance", Value = config.callDistance });
 
-            phoneDataFSM.AddVariable(new FsmString { Name = "CallerAudioVariation", Value = config.callAudioVariation});
+            phoneDataFSM.AddVariable(new FsmString { Name = "CallerAudioVariation", Value = config.callAudioVariation });
             phoneDataFSM.AddVariable(new FsmString { Name = "CallerSubtitle", Value = config.callSubtitles });
             phoneDataFSM.AddVariable(new FsmString { Name = "Number", Value = config.phoneNumber });
 
             phoneDataFSM.AddVariable(new FsmInt { Name = "Stage", Value = 1 }); // can be anything but 0, otherwise it handles like magazine calls
 
-            
+
             // TODO: Refactor using PlayMakerExtensions, but there seems to be a bug with GlobalTransitions via extensions.
             var fsm = phoneDataFSM.Fsm;
 
@@ -199,7 +199,7 @@ namespace CallThePlumber
         public static string FormatPhoneNumber(string phoneNumber)
         {
             int length = phoneNumber.Length;
-            
+
             if (length < 8) return phoneNumber;
 
             string areaCode = phoneNumber.Substring(0, length - 6);
@@ -235,7 +235,7 @@ namespace CallThePlumber
 
             plumberPhone.name = $"{config.phoneNumber}disabled";
             plumberAd.SetActive(false);
-            
+
             SendPlumbingBillEnvelope();
         }
 

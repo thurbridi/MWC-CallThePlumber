@@ -10,7 +10,7 @@ namespace CallThePlumber
         public GameObject envelopeContent;
         public float billValue;
         public Action onInvoicePaid;
-        
+
         bool isEnvelopeOpen;
 
         GameObject parentsHouseMailbox;
@@ -22,7 +22,7 @@ namespace CallThePlumber
         FsmBool playerInMenu, guiUse;
         FsmString guiInteraction;
 
-        void OpenEnvelope ()
+        void OpenEnvelope()
         {
             MasterAudio.PlaySound3DAndForget(sType: "HouseFoley", sourceTrans: this.gameObject.transform, variationName: "mail_envelope_open");
             playerInMenu.Value = true;
@@ -66,8 +66,9 @@ namespace CallThePlumber
         }
 
         void Update()
-        { 
-            if (isEnvelopeOpen) {
+        {
+            if (isEnvelopeOpen)
+            {
                 if (Input.GetKeyDown(KeyCode.Escape))
                     ReturnEnvelopeToMailbox();
                 return;
@@ -82,14 +83,15 @@ namespace CallThePlumber
                 if (Input.GetMouseButtonUp(0))
                     OpenEnvelope();
 
-            } else if (wasOverCollider)
+            }
+            else if (wasOverCollider)
             {
                 guiUse.Value = false;
                 guiInteraction.Value = "";
                 wasOverCollider = false;
             }
         }
-        
+
         void Awake()
         {
             isEnvelopeOpen = false;
@@ -126,7 +128,7 @@ namespace CallThePlumber
 
             envelopeContent.transform.Find("Foreground/PaymentButton").gameObject.AddComponent<Invoice>();
             envelopeContent.transform.Find("Foreground/PaymentButton").GetComponent<Invoice>().onButtonClicked = () =>
-            {   
+            {
                 bool playerHasEnoughMoney = FsmVariables.GlobalVariables.GetFsmFloat("PlayerMoney").Value >= billValue;
 
                 if (playerHasEnoughMoney)

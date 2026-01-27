@@ -30,7 +30,8 @@ namespace CallThePlumber
             {
                 vanillaSubtitles.Value = subtitleText;
                 wasOverCollider = true;
-            } else if (wasOverCollider)
+            }
+            else if (wasOverCollider)
             {
                 vanillaSubtitles.Value = "";
                 wasOverCollider = false;

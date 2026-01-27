@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using MSCLoader;
 using UnityEngine;
 
 namespace CallThePlumber
@@ -19,9 +18,9 @@ namespace CallThePlumber
         }
 
         void Awake()
-        { 
+        {
             buttonIdleMaterial = Resources.FindObjectsOfTypeAll<Material>().First(mat => mat.name == "paynow1");
-            buttonHoverMaterial = Resources.FindObjectsOfTypeAll<Material>().First(mat => mat.name == "paynow2"); 
+            buttonHoverMaterial = Resources.FindObjectsOfTypeAll<Material>().First(mat => mat.name == "paynow2");
         }
 
         void OnMouseUpAsButton()
