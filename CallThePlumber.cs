@@ -10,7 +10,7 @@ namespace CallThePlumber
         public override string Name => "Call The Plumber"; // Your mod name
         public override string Author => "casper-3"; // Name of the Author (your name)
         public override string Version => "0.1.0"; // Version
-        public override string Description => ""; // Short description of your mod 
+        public override string Description => "Hire a plumber to fix the burst pipes in your parents house."; // Short description of your mod 
         public override Game SupportedGames => Game.MyWinterCar;
 
         SettingsSlider minCostSlider, maxCostSlider;
