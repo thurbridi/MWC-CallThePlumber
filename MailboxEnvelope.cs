@@ -14,8 +14,13 @@ namespace CallThePlumber
         bool isEnvelopeOpen;
 
         GameObject parentsHouseMailbox;
+
+        // GUI
+        bool wasOverCollider;
+        CapsuleCollider collider;
         PlayMakerFSM openMenuFsm;
-        FsmBool playerInMenu;
+        FsmBool playerInMenu, guiUse;
+        FsmString guiInteraction;
 
         void OpenEnvelope ()
         {
@@ -64,18 +69,37 @@ namespace CallThePlumber
         { 
             if (isEnvelopeOpen) {
                 if (Input.GetKeyDown(KeyCode.Escape))
-                {
                     ReturnEnvelopeToMailbox();
-                }
+                return;
+            }
+
+            if (UnifiedRaycast.GetHit(collider))
+            {
+                guiUse.Value = true;
+                guiInteraction.Value = "Plumbing Service";
+                wasOverCollider = true;
+
+                if (Input.GetMouseButtonUp(0))
+                    OpenEnvelope();
+
+            } else if (wasOverCollider)
+            {
+                guiUse.Value = false;
+                guiInteraction.Value = "";
+                wasOverCollider = false;
             }
         }
         
         void Awake()
         {
             isEnvelopeOpen = false;
+            wasOverCollider = false;
 
             openMenuFsm = GameObject.Find("Systems/OptionsDB").GetPlayMaker("Open Menu");
             playerInMenu = FsmVariables.GlobalVariables.GetFsmBool("PlayerInMenu");
+            guiUse = FsmVariables.GlobalVariables.GetFsmBool("GUIuse");
+            guiInteraction = FsmVariables.GlobalVariables.GetFsmString("GUIinteraction");
+            collider = this.gameObject.GetComponent<CapsuleCollider>();
 
             GameObject sheets = GameObject.Find("Sheets");
             parentsHouseMailbox = GameObject.Find("YARD/Others/PlayerMailBox1/");
@@ -111,25 +135,6 @@ namespace CallThePlumber
                     // TODO: Show "Not enough money" message before closing
                     ReturnEnvelopeToMailbox();
             };
-
-        }
-
-        // TODO: Refactor mouse events to MSCLoader unified raycast because mouse events go too far. 
-        void OnMouseUpAsButton()
-        {
-            OpenEnvelope();
-        }
-        
-        void OnMouseOver()
-        {
-            FsmVariables.GlobalVariables.GetFsmBool("GUIuse").Value = true;
-            FsmVariables.GlobalVariables.GetFsmString("GUIinteraction").Value = "Plumbing Service";
-        }
-
-        void OnMouseExit()
-        {
-            FsmVariables.GlobalVariables.GetFsmBool("GUIuse").Value = false;
-            FsmVariables.GlobalVariables.GetFsmString("GUIinteraction").Value = "";
         }
     }
 }
