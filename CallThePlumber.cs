@@ -102,15 +102,15 @@ namespace CallThePlumber
             Settings.AddText("<size=24><b>Time Settings</b></size>");
             Settings.AddSlider(
                 "hoursToInvoice", "Hours until invoice is delivered after phone call",
-                minValue: 0.25f, maxValue: 168f, value: 48f, decimalPoints: 2
+                minValue: 0.25f, maxValue: 144f, value: 48f, decimalPoints: 2
                 );
             Settings.AddSlider(
                 "hoursToRepairStart", "Hours until plumber arrives after paying the invoice",
-                minValue: 0.25f, maxValue: 168f, value: 24f, decimalPoints: 2
+                minValue: 0.25f, maxValue: 144f, value: 24f, decimalPoints: 2
             );
             Settings.AddSlider(
                 "hoursToRepairFinish", "Hours until plumber finishes the repairs after arriving",
-                minValue: 0.25f, maxValue: 168f, value: 72f, decimalPoints: 2
+                minValue: 0.25f, maxValue: 144f, value: 72f, decimalPoints: 2
             );
             bool isDebugHeaderCollapsed = true;
 #if DEBUG
