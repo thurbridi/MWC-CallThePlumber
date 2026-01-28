@@ -73,14 +73,16 @@ namespace CallThePlumber
             // All settings should be created here. 
             // DO NOT put anything that isn't settings or keybinds in here!
             float maxCost = 40000f;
-            float minCost = 0f;
+            float minCost = 7400f;
 
             float defaultMinValue = 12500f;
             float defaultMaxValue = 25000f;
 
             Settings.AddHeader("Gameplay balance");
+            Settings.AddText("<size=24><b>Cost Settings</b></size>");
+            Settings.AddText("<size=18>The actual cost on the invoice is uniformly sampled between min and max values. Changes to these values will only apply the next time an invoice is generated.</size>");
             minCostSlider = Settings.AddSlider(
-                "minCostSlider", "Minimum plumbing service cost",
+                "minCostSlider", "Minimum plumbing service cost (MK)",
                 minValue: minCost, maxValue: maxCost, value: defaultMinValue, decimalPoints: 0,
                 onValueChanged: () =>
                 {
@@ -89,7 +91,7 @@ namespace CallThePlumber
                 });
 
             maxCostSlider = Settings.AddSlider(
-                "maxCostSlider", "Maximum plumbing service cost",
+                "maxCostSlider", "Maximum plumbing service cost (MK)",
                 minValue: minCost, maxValue: maxCost, value: defaultMaxValue, decimalPoints: 0,
                 onValueChanged: () =>
                 {
@@ -97,6 +99,19 @@ namespace CallThePlumber
                     plumberService.UpdateCostSettings(minCostSlider.GetValue(), maxCostSlider.GetValue());
                 });
 
+            Settings.AddText("<size=24><b>Time Settings</b></size>");
+            Settings.AddSlider(
+                "hoursToInvoice", "Hours until invoice is delivered after phone call",
+                minValue: 0.25f, maxValue: 168f, value: 48f, decimalPoints: 2
+                );
+            Settings.AddSlider(
+                "hoursToRepairStart", "Hours until plumber arrives after paying the invoice",
+                minValue: 0.25f, maxValue: 168f, value: 24f, decimalPoints: 2
+            );
+            Settings.AddSlider(
+                "hoursToRepairFinish", "Hours until plumber finishes the repairs after arriving",
+                minValue: 0.25f, maxValue: 168f, value: 72f, decimalPoints: 2
+            );
             bool isDebugHeaderCollapsed = true;
 #if DEBUG
             isDebugHeaderCollapsed = false;
