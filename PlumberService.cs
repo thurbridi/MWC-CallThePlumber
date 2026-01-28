@@ -19,6 +19,7 @@ namespace CallThePlumber
         {
             // Settings
             public float minCost, maxCost;
+            public float hoursToInvoice, hoursToRepairStart, hoursToRepairFinish;
 
             // Ad at PSK
             public string adSubtitles;
@@ -168,8 +169,8 @@ namespace CallThePlumber
 
             pipesLogicFsm.FsmInject(stateName: repairingStateName, hook: () =>
             {
-                plumberPhone.name = $"{config.phoneNumber}disabled";
-                plumberPhone.SetActive(false);
+                config.currentState = PlumberState.Finished;
+                ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
 
                 FsmFloat iceFsmVar = pipesLogicFsm.GetVariable<FsmFloat>("Ice");
                 FsmBool pipesOkFsmVar = pipesLogicFsm.GetVariable<FsmBool>("PipesOK");
@@ -177,17 +178,9 @@ namespace CallThePlumber
                 iceFsmVar.Value = 0f;
                 pipesOkFsmVar.Value = true;
 
-                config.currentState = PlumberState.Finished;
             });
 
-            pipesLogicFsm.FsmInject(stateName: burstStateName, hook: () =>
-            {
-                plumberPhone.name = config.phoneNumber;
-                plumberPhone.SetActive(true);
-                plumberAd.SetActive(true);
-
-                config.currentState = PlumberState.Available;
-            });
+            pipesLogicFsm.FsmInject(stateName: burstStateName, hook: OnHousePipesBurst);
         }
 
         public void UpdateCostSettings(float minCost, float maxCost)
@@ -216,7 +209,6 @@ namespace CallThePlumber
         public void RepairParentsHousePipes()
         {
             pipesLogicFsm.SendEvent(repairPlumbingEventName);
-            config.currentState = PlumberState.Finished;
         }
 
         public void BurstParentsHousePipes()
@@ -226,22 +218,53 @@ namespace CallThePlumber
 
             pipesLogicFsm.GetVariable<FsmFloat>("Ice").Value = 100.5f;
             pipesLogicFsm.SendEvent("BURST");
+        }
+
+        public void OnHousePipesBurst()
+        {
             config.currentState = PlumberState.Available;
+            ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
+
+            plumberPhone.name = config.phoneNumber;
+            plumberPhone.SetActive(true);
+            plumberAd.SetActive(true);
+        }
+
+        void SendPlumbingBillEnvelope()
+        {
+            config.invoiceCost = GetRandomCost();
+            plumbingBillEnvelope.GetComponent<MailboxEnvelope>().billValue = config.invoiceCost;
+            plumbingBillEnvelope.SetActive(true);
         }
 
         void HandlePlumberCalled()
         {
             config.currentState = PlumberState.WaitingPayment;
+            ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
 
             plumberPhone.name = $"{config.phoneNumber}disabled";
             plumberAd.SetActive(false);
 
-            SendPlumbingBillEnvelope();
+            MSCCoreLibrary.TimeScheduler.ScheduleAction(MSCCoreLibrary.GameTime.Hour, MSCCoreLibrary.GameTime.Minute + 5, SendPlumbingBillEnvelope, oneTimeAction: true);
         }
 
         void HandleInvoicePaid()
         {
             config.currentState = PlumberState.EnRoute;
+            ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
+
+            MSCCoreLibrary.TimeScheduler.ScheduleAction(MSCCoreLibrary.GameTime.Hour, MSCCoreLibrary.GameTime.Minute + 5, StartPlumberWork, oneTimeAction: true);
+        }
+
+        void StartPlumberWork()
+        {
+            config.currentState = PlumberState.Working;
+            ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
+            MSCCoreLibrary.TimeScheduler.ScheduleAction(MSCCoreLibrary.GameTime.Hour, MSCCoreLibrary.GameTime.Minute + 5, FinishPlumberWork, oneTimeAction: true);
+        }
+
+        void FinishPlumberWork()
+        {
             RepairParentsHousePipes();
         }
 
@@ -250,11 +273,9 @@ namespace CallThePlumber
             return config.currentState;
         }
 
-        void SendPlumbingBillEnvelope()
+        public float GetInvoiceCost()
         {
-            config.invoiceCost = GetRandomCost();
-            plumbingBillEnvelope.GetComponent<MailboxEnvelope>().billValue = config.invoiceCost;
-            plumbingBillEnvelope.SetActive(true);
+            return config.invoiceCost;
         }
     }
 }

@@ -14,6 +14,7 @@ namespace CallThePlumber
         bool isEnvelopeOpen;
 
         GameObject parentsHouseMailbox;
+        FsmFloat playerMoney;
 
         // GUI
         bool wasOverCollider;
@@ -57,9 +58,16 @@ namespace CallThePlumber
             this.gameObject.SetActive(false);
         }
 
+        void AttemptPayBill()
+        {
+            if (playerMoney.Value >= billValue)
+                PayBill();
+            else
+                ReturnEnvelopeToMailbox();
+        }
+
         void PayBill()
         {
-            FsmFloat playerMoney = FsmVariables.GlobalVariables.GetFsmFloat("PlayerMoney");
             playerMoney.Value -= billValue;
             SendEnvelopeBack();
             onInvoicePaid();
@@ -102,6 +110,7 @@ namespace CallThePlumber
             guiUse = FsmVariables.GlobalVariables.GetFsmBool("GUIuse");
             guiInteraction = FsmVariables.GlobalVariables.GetFsmString("GUIinteraction");
             collider = this.gameObject.GetComponent<CapsuleCollider>();
+            playerMoney = FsmVariables.GlobalVariables.GetFsmFloat("PlayerMoney");
 
             GameObject sheets = GameObject.Find("Sheets");
             parentsHouseMailbox = GameObject.Find("YARD/Others/PlayerMailBox1/");
@@ -127,16 +136,7 @@ namespace CallThePlumber
             envelopeContent.SetActive(false);
 
             envelopeContent.transform.Find("Foreground/PaymentButton").gameObject.AddComponent<Invoice>();
-            envelopeContent.transform.Find("Foreground/PaymentButton").GetComponent<Invoice>().onButtonClicked = () =>
-            {
-                bool playerHasEnoughMoney = FsmVariables.GlobalVariables.GetFsmFloat("PlayerMoney").Value >= billValue;
-
-                if (playerHasEnoughMoney)
-                    PayBill();
-                else
-                    // TODO: Show "Not enough money" message before closing
-                    ReturnEnvelopeToMailbox();
-            };
+            envelopeContent.transform.Find("Foreground/PaymentButton").GetComponent<Invoice>().onButtonClicked = AttemptPayBill;
         }
     }
 }

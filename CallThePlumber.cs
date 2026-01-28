@@ -42,6 +42,9 @@ namespace CallThePlumber
                 maxCost = maxCostSlider.GetValue(),
                 currentState = currentState,
                 invoiceCost = invoiceCost,
+                hoursToInvoice = 48f,
+                hoursToRepairStart = 24f,
+                hoursToRepairFinish = 72f,
             };
 
             plumberService = PlumberService.Instance;
@@ -62,7 +65,6 @@ namespace CallThePlumber
         {
             SetupFunction(Setup.OnSave, Mod_OnSave);
             SetupFunction(Setup.OnLoad, Mod_OnLoad);
-            SetupFunction(Setup.Update, Mod_Update);
             SetupFunction(Setup.ModSettings, Mod_Settings);
         }
 
@@ -135,11 +137,7 @@ namespace CallThePlumber
         private void Mod_OnSave()
         {
             SaveLoad.WriteValue<PlumberState>(this, "plumberState", plumberService.GetPlumberState());
-        }
-
-        private void Mod_Update()
-        {
-            // Update is called once per frame
+            SaveLoad.WriteValue<float>(this, "invoiceCost", plumberService.GetInvoiceCost());
         }
     }
 }
