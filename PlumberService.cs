@@ -37,7 +37,7 @@ namespace CallThePlumber
         private const string repairPlumbingEventName = "REPAIRPLUMBING";
         private const string burstStateName = "State 2";
 
-        public TimeScheduler.ScheduledAction scheduledAction = null;
+        public TimeScheduler.ScheduledAction PlumberScheduledAction { get; private set; } = null;
 
         private static PlumberService _instance;
 
@@ -250,7 +250,7 @@ namespace CallThePlumber
             plumberPhone.name = $"{config.phoneNumber}disabled";
             plumberAd.SetActive(false);
 
-            scheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, SendPlumbingBillEnvelope, oneTimeAction: true);
+            PlumberScheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, SendPlumbingBillEnvelope, oneTimeAction: true);
         }
 
         void HandleInvoicePaid()
@@ -258,7 +258,7 @@ namespace CallThePlumber
             config.currentState = PlumberState.EnRoute;
             ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
 
-            scheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, StartPlumberWork, oneTimeAction: true);
+            PlumberScheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, StartPlumberWork, oneTimeAction: true);
         }
 
         void StartPlumberWork()
@@ -266,7 +266,7 @@ namespace CallThePlumber
             config.currentState = PlumberState.Working;
             ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
 
-            scheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, FinishPlumberWork, oneTimeAction: true);
+            PlumberScheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, FinishPlumberWork, oneTimeAction: true);
         }
 
         void FinishPlumberWork()

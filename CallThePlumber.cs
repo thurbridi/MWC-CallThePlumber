@@ -171,7 +171,7 @@ namespace CallThePlumber
             SaveLoad.WriteValue(this, "plumberState", plumberService.GetPlumberState());
             SaveLoad.WriteValue(this, "invoiceCost", plumberService.GetInvoiceCost());
 
-            TimeScheduler.ScheduledAction plumberAction = plumberService.scheduledAction;
+            TimeScheduler.ScheduledAction plumberAction = plumberService.PlumberScheduledAction;
             if (TimeScheduler.ScheduledActions.Contains(plumberAction))
             {
                 SaveLoad.WriteValue(this, "plumberActionDay", plumberAction.Day);
