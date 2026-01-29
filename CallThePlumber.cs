@@ -117,6 +117,7 @@ namespace CallThePlumber
                 });
 
             Settings.AddText("<size=24><b>Time Settings</b></size>");
+            Settings.AddText("<size=18>In-game time adjustments for how long each step in the process takes to happen.</size>");
             hoursToInvoiceSlider = Settings.AddSlider(
                 "hoursToInvoice", "Hours until invoice is delivered after phone call",
                 minValue: 0.25f, maxValue: 144f, value: 48f, decimalPoints: 2, onValueChanged: () =>
