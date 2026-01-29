@@ -1,4 +1,5 @@
 ﻿using System;
+using MSCCoreLibrary;
 using MSCLoader;
 using UnityEngine;
 
@@ -20,6 +21,7 @@ namespace CallThePlumber
 
         void InitializeMod()
         {
+            ModConsole.Log("[CallThePlumber] Initializing mod...");
             pipesLogicFsm = GameObject.Find("YARD/Building/Dynamics/Pipes").GetPlayMaker("Logic");
 
             PlumberState currentState = SaveLoad.ValueExists(this, "plumberState") ? SaveLoad.ReadValue<PlumberState>(this, "plumberState") :
@@ -49,6 +51,20 @@ namespace CallThePlumber
 
             plumberService = PlumberService.Instance;
             plumberService.Initialize(plumberConfig);
+
+            if (SaveLoad.ValueExists(this, "plumberActionMethodName"))
+            {
+                ModConsole.Log("[CallThePlumber] Save ScheduledAction found. Restoring now.");
+                GameTime.Days day = SaveLoad.ReadValue<GameTime.Days>(this, "plumberActionDay");
+                int hour = SaveLoad.ReadValue<int>(this, "plumberActionHour");
+                int minute = SaveLoad.ReadValue<int>(this, "plumberActionMinute");
+                string methodName = SaveLoad.ReadValue<string>(this, "plumberActionMethodName");
+                Action act = (Action)Delegate.CreateDelegate(typeof(Action), plumberService, methodName);
+
+                TimeScheduler.ScheduleAction(hour, minute, act, day, oneTimeAction: true);
+            }
+
+            ModConsole.Log("[CallThePlumber] Mod initialized.");
         }
 
         float Average(float a, float b)
@@ -112,11 +128,12 @@ namespace CallThePlumber
                 "hoursToRepairFinish", "Hours until plumber finishes the repairs after arriving",
                 minValue: 0.25f, maxValue: 144f, value: 72f, decimalPoints: 2
             );
+
+            // TODO: Hide debug completely at 1.0.0 release
             bool isDebugHeaderCollapsed = true;
 #if DEBUG
             isDebugHeaderCollapsed = false;
 #endif
-            // TODO: uncomment directives at 1.0.0 release
             //#if DEBUG
             Settings.AddHeader("Debug", collapsedByDefault: isDebugHeaderCollapsed);
             Settings.AddButton(name: "Repair house pipes", onClick: () => plumberService.RepairParentsHousePipes());
@@ -151,8 +168,24 @@ namespace CallThePlumber
 
         private void Mod_OnSave()
         {
-            SaveLoad.WriteValue<PlumberState>(this, "plumberState", plumberService.GetPlumberState());
-            SaveLoad.WriteValue<float>(this, "invoiceCost", plumberService.GetInvoiceCost());
+            SaveLoad.WriteValue(this, "plumberState", plumberService.GetPlumberState());
+            SaveLoad.WriteValue(this, "invoiceCost", plumberService.GetInvoiceCost());
+
+            TimeScheduler.ScheduledAction plumberAction = plumberService.scheduledAction;
+            if (TimeScheduler.ScheduledActions.Contains(plumberAction))
+            {
+                SaveLoad.WriteValue(this, "plumberActionDay", plumberAction.Day);
+                SaveLoad.WriteValue(this, "plumberActionHour", plumberAction.Hour);
+                SaveLoad.WriteValue(this, "plumberActionMinute", plumberAction.Minute);
+                SaveLoad.WriteValue(this, "plumberActionMethodName", plumberAction.Action.Method.Name);
+            }
+            else
+            {
+                SaveLoad.DeleteValue(this, "plumberActionDay");
+                SaveLoad.DeleteValue(this, "plumberActionHour");
+                SaveLoad.DeleteValue(this, "plumberActionMinute");
+                SaveLoad.DeleteValue(this, "plumberActionMethodName");
+            }
         }
     }
 }

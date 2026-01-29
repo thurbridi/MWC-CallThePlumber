@@ -1,4 +1,5 @@
 ﻿using HutongGames.PlayMaker;
+using MSCCoreLibrary;
 using MSCLoader;
 using UnityEngine;
 
@@ -36,6 +37,8 @@ namespace CallThePlumber
         private const string repairPlumbingEventName = "REPAIRPLUMBING";
         private const string burstStateName = "State 2";
 
+        public TimeScheduler.ScheduledAction scheduledAction = null;
+
         private static PlumberService _instance;
 
         private PlumberService() { }
@@ -66,6 +69,8 @@ namespace CallThePlumber
             InitializePlumberPhone();
             InitializePlumbingBillEnvelope();
             InitializePlumbingAd();
+
+            ModConsole.Log($"[CallThePlumber] PlumberService initialized. currentState = {config.currentState}");
         }
 
         void InitializePlumberPhone()
@@ -245,7 +250,7 @@ namespace CallThePlumber
             plumberPhone.name = $"{config.phoneNumber}disabled";
             plumberAd.SetActive(false);
 
-            MSCCoreLibrary.TimeScheduler.ScheduleAction(MSCCoreLibrary.GameTime.Hour, MSCCoreLibrary.GameTime.Minute + 5, SendPlumbingBillEnvelope, oneTimeAction: true);
+            scheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, SendPlumbingBillEnvelope, oneTimeAction: true);
         }
 
         void HandleInvoicePaid()
@@ -253,14 +258,15 @@ namespace CallThePlumber
             config.currentState = PlumberState.EnRoute;
             ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
 
-            MSCCoreLibrary.TimeScheduler.ScheduleAction(MSCCoreLibrary.GameTime.Hour, MSCCoreLibrary.GameTime.Minute + 5, StartPlumberWork, oneTimeAction: true);
+            scheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, StartPlumberWork, oneTimeAction: true);
         }
 
         void StartPlumberWork()
         {
             config.currentState = PlumberState.Working;
             ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
-            MSCCoreLibrary.TimeScheduler.ScheduleAction(MSCCoreLibrary.GameTime.Hour, MSCCoreLibrary.GameTime.Minute + 5, FinishPlumberWork, oneTimeAction: true);
+
+            scheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, FinishPlumberWork, oneTimeAction: true);
         }
 
         void FinishPlumberWork()
