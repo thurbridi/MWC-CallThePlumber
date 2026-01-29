@@ -58,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameTimeExtensions.cs" />
     <Compile Include="Invoice.cs" />
     <Compile Include="MailboxEnvelope.cs" />
     <Compile Include="CallThePlumber.cs" />

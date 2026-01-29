@@ -14,7 +14,8 @@ namespace CallThePlumber
         public override string Description => "Hire a plumber to fix the burst pipes in your parents house."; // Short description of your mod 
         public override Game SupportedGames => Game.MyWinterCar;
 
-        SettingsSlider minCostSlider, maxCostSlider;
+        SettingsSlider minCostSlider, maxCostSlider,
+            hoursToInvoiceSlider, hoursToRepairStartSlider, hoursToRepairFinishSlider;
         PlayMakerFSM pipesLogicFsm;
 
         PlumberService plumberService;
@@ -44,9 +45,9 @@ namespace CallThePlumber
                 maxCost = maxCostSlider.GetValue(),
                 currentState = currentState,
                 invoiceCost = invoiceCost,
-                hoursToInvoice = 48f,
-                hoursToRepairStart = 24f,
-                hoursToRepairFinish = 72f,
+                hoursToInvoice = hoursToInvoiceSlider.GetValue(),
+                hoursToRepairStart = hoursToRepairStartSlider.GetValue(),
+                hoursToRepairFinish = hoursToRepairFinishSlider.GetValue(),
             };
 
             plumberService = PlumberService.Instance;
@@ -116,17 +117,26 @@ namespace CallThePlumber
                 });
 
             Settings.AddText("<size=24><b>Time Settings</b></size>");
-            Settings.AddSlider(
+            hoursToInvoiceSlider = Settings.AddSlider(
                 "hoursToInvoice", "Hours until invoice is delivered after phone call",
-                minValue: 0.25f, maxValue: 144f, value: 48f, decimalPoints: 2
+                minValue: 0.25f, maxValue: 144f, value: 48f, decimalPoints: 2, onValueChanged: () =>
+                {
+                    plumberService.SetHoursToInvoice(hoursToInvoiceSlider.GetValue());
+                }
                 );
-            Settings.AddSlider(
+            hoursToRepairStartSlider = Settings.AddSlider(
                 "hoursToRepairStart", "Hours until plumber arrives after paying the invoice",
-                minValue: 0.25f, maxValue: 144f, value: 24f, decimalPoints: 2
+                minValue: 0.25f, maxValue: 144f, value: 24f, decimalPoints: 2, onValueChanged: () =>
+                {
+                    plumberService.SetHoursToRepairStart(hoursToRepairStartSlider.GetValue());
+                }
             );
-            Settings.AddSlider(
+            hoursToRepairFinishSlider = Settings.AddSlider(
                 "hoursToRepairFinish", "Hours until plumber finishes the repairs after arriving",
-                minValue: 0.25f, maxValue: 144f, value: 72f, decimalPoints: 2
+                minValue: 0.25f, maxValue: 144f, value: 72f, decimalPoints: 2, onValueChanged: () =>
+                {
+                    plumberService.SetHoursToRepairFinish(hoursToRepairFinishSlider.GetValue());
+                }
             );
 
             // TODO: Hide debug completely at 1.0.0 release
@@ -147,7 +157,6 @@ namespace CallThePlumber
             AssetBundle ab = LoadAssets.LoadBundle(this, "calltheplumber.unity3d");
             GameObject plumbingBillPrefab = ab.LoadAsset<GameObject>("PlumbingBill");
             GameObject plumbingBill = GameObject.Instantiate(plumbingBillPrefab);
-
             plumbingBill.name = "PlumbingBill";
             plumbingBill.transform.SetParent(GameObject.Find("Sheets/").transform);
             plumbingBill.SetActive(false);

@@ -250,7 +250,9 @@ namespace CallThePlumber
             plumberPhone.name = $"{config.phoneNumber}disabled";
             plumberAd.SetActive(false);
 
-            PlumberScheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, SendPlumbingBillEnvelope, oneTimeAction: true);
+            var actionTime = GameTimeExtensions.GameDateTime.Now();
+            actionTime.AdvanceHours(config.hoursToInvoice);
+            PlumberScheduledAction = TimeScheduler.ScheduleAction(actionTime.Hour, actionTime.Minute, SendPlumbingBillEnvelope, day: actionTime.Day, oneTimeAction: true);
         }
 
         void HandleInvoicePaid()
@@ -258,7 +260,9 @@ namespace CallThePlumber
             config.currentState = PlumberState.EnRoute;
             ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
 
-            PlumberScheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, StartPlumberWork, oneTimeAction: true);
+            var actionTime = GameTimeExtensions.GameDateTime.Now();
+            actionTime.AdvanceHours(config.hoursToRepairStart);
+            PlumberScheduledAction = TimeScheduler.ScheduleAction(actionTime.Hour, actionTime.Minute, StartPlumberWork, day: actionTime.Day, oneTimeAction: true);
         }
 
         void StartPlumberWork()
@@ -266,12 +270,29 @@ namespace CallThePlumber
             config.currentState = PlumberState.Working;
             ModConsole.Log($"[CallThePlumber] PlumberState -> {GetPlumberState()}");
 
-            PlumberScheduledAction = TimeScheduler.ScheduleAction(GameTime.Hour, GameTime.Minute + 30, FinishPlumberWork, oneTimeAction: true);
+            var actionTime = GameTimeExtensions.GameDateTime.Now();
+            actionTime.AdvanceHours(config.hoursToRepairFinish);
+            PlumberScheduledAction = TimeScheduler.ScheduleAction(actionTime.Hour, actionTime.Minute, FinishPlumberWork, day: actionTime.Day, oneTimeAction: true);
         }
 
         void FinishPlumberWork()
         {
             RepairParentsHousePipes();
+        }
+
+        public void SetHoursToInvoice(float value)
+        {
+            config.hoursToInvoice = value;
+        }
+
+        public void SetHoursToRepairStart(float value)
+        {
+            config.hoursToRepairStart = value;
+        }
+
+        public void SetHoursToRepairFinish(float value)
+        {
+            config.hoursToRepairFinish = value;
         }
 
         public PlumberState GetPlumberState()
