@@ -10,7 +10,7 @@ namespace CallThePlumber
         public override string ID => "CallThePlumber"; // Your (unique) mod ID 
         public override string Name => "Call The Plumber"; // Your mod name
         public override string Author => "casper-3"; // Name of the Author (your name)
-        public override string Version => "0.1.0"; // Version
+        public override string Version => "0.1.1"; // Version
         public override string Description => "Hire a plumber to fix the burst pipes in your parents house."; // Short description of your mod 
         public override Game SupportedGames => Game.MyWinterCar;
 
@@ -23,7 +23,7 @@ namespace CallThePlumber
         void InitializeMod()
         {
             ModConsole.Log("[CallThePlumber] Initializing mod...");
-            pipesLogicFsm = GameObject.Find("YARD/Building/Dynamics/Pipes").GetPlayMaker("Logic");
+            pipesLogicFsm = GameObject.Find("YARD").transform.Find("Building/Dynamics/Pipes").GetPlayMaker("Logic");
 
             PlumberState currentState = SaveLoad.ValueExists(this, "plumberState") ? SaveLoad.ReadValue<PlumberState>(this, "plumberState") :
                 IsParentsHousePipesBurst() ? PlumberState.Available : PlumberState.Finished;
@@ -162,7 +162,7 @@ namespace CallThePlumber
             plumbingBill.transform.SetParent(GameObject.Find("Sheets/").transform);
             plumbingBill.SetActive(false);
 
-            GameObject vanillaTaxiAd = GameObject.Find("PERAPORTTI").transform.Find("Building/LOD/InfoBoard/TaxiJob").gameObject;
+            GameObject vanillaTaxiAd = GameObject.Find("PERAPORTTI").transform.Find("Building/LOD100/InfoBoard/TaxiJob").gameObject;
             GameObject plumberAdPrefab = ab.LoadAsset<GameObject>("PlumberAd");
             GameObject plumberAd = GameObject.Instantiate(plumberAdPrefab);
             plumberAd.name = "PlumberAd";

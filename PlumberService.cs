@@ -63,7 +63,7 @@ namespace CallThePlumber
         {
             this.config = config;
 
-            pipesLogicFsm = GameObject.Find("YARD/Building/Dynamics/Pipes").GetPlayMaker("Logic");
+            pipesLogicFsm = GameObject.Find("YARD").transform.Find("Building/Dynamics/Pipes").GetPlayMaker("Logic");
 
             PatchParentsHousePipesFSM();
             InitializePlumberPhone();
@@ -75,7 +75,7 @@ namespace CallThePlumber
 
         void InitializePlumberPhone()
         {
-            GameObject phones = GameObject.Find("CARPARTS/PARTSYSTEM/PhoneNumbers");
+            GameObject phones = GameObject.Find("CARPARTS").transform.Find("PARTSYSTEM/PhoneNumbers").gameObject;
 
             plumberPhone = new GameObject($"{config.phoneNumber}disabled");
             plumberPhone.transform.SetParent(phones.transform);
@@ -128,7 +128,7 @@ namespace CallThePlumber
 
         void InitializePlumbingBillEnvelope()
         {
-            GameObject parentsHouseMailbox = GameObject.Find("YARD/Others/PlayerMailBox1/");
+            GameObject parentsHouseMailbox = GameObject.Find("YARD").transform.Find("Others/PlayerMailBox1").gameObject;
 
             plumbingBillEnvelope = new("EnvelopePlumbingBill")
             {
@@ -152,7 +152,7 @@ namespace CallThePlumber
 
         void InitializePlumbingAd()
         {
-            plumberAd = GameObject.Find("PERAPORTTI").transform.Find("Building/LOD/InfoBoard/PlumberAd").gameObject;
+            plumberAd = GameObject.Find("PERAPORTTI").transform.Find("Building/LOD100/InfoBoard/PlumberAd").gameObject;
 
             plumberAd.SetActive(config.currentState == PlumberState.Available);
 
